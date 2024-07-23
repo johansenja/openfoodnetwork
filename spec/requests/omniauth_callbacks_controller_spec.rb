@@ -33,7 +33,7 @@ RSpec.describe '/user/spree_user/auth/openid_connect/callback', type: :request d
       account = OidcAccount.last
       expect(account.provider).to eq "openid_connect"
       expect(account.uid).to eq "ofn@example.com"
-      expect(response.status).to eq(302)
+      expect(response).to have_http_status(:found)
     end
   end
 
@@ -45,7 +45,7 @@ RSpec.describe '/user/spree_user/auth/openid_connect/callback', type: :request d
     it 'fails with bad auth data' do
       expect { request! }.not_to change { OidcAccount.count }
 
-      expect(response.status).to eq(302)
+      expect(response).to have_http_status(:found)
     end
   end
 end

@@ -52,7 +52,7 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
       api_get :show, id: "non-existant"
 
       expect(json_response["error"]).to eq("The resource you were looking for could not be found.")
-      expect(response.status).to eq(404)
+      expect(response).to have_http_status(:not_found)
     end
 
     it "cannot create a new product if not an admin" do
@@ -78,7 +78,7 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
       expect(product.deleted_at).to be_nil
       api_delete :destroy, id: product.to_param
 
-      expect(response.status).to eq(204)
+      expect(response).to have_http_status(:no_content)
       expect { product.reload }.not_to raise_error
       expect(product.deleted_at).not_to be_nil
     end
@@ -110,14 +110,14 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
                                    unit_description: "things" }
 
       expect(all_attributes.all?{ |attr| json_response.keys.include? attr }).to eq(true)
-      expect(response.status).to eq(201)
+      expect(response).to have_http_status(:created)
       expect(Spree::Product.last.variants.first.price).to eq 123.45
     end
 
     it "cannot create a new product with invalid attributes" do
       api_post :create, product: {}
 
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       expect(json_response["error"]).to eq("Invalid resource. Please fix errors and try again.")
       errors = json_response["errors"]
       expect(errors.keys).to match_array(["name", "variant_unit", "price"])
@@ -126,13 +126,13 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
     it "can update a product" do
       api_put :update, id: product.to_param, product: { name: "New and Improved Product!" }
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it "cannot update a product with an invalid attribute" do
       api_put :update, id: product.to_param, product: { name: "" }
 
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       expect(json_response["error"]).to eq("Invalid resource. Please fix errors and try again.")
       expect(json_response["errors"]["name"]).to eq(["can't be blank"])
     end
@@ -141,7 +141,7 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
       expect(product.deleted_at).to be_nil
       api_delete :destroy, id: product.to_param
 
-      expect(response.status).to eq(204)
+      expect(response).to have_http_status(:no_content)
       expect(product.reload.deleted_at).not_to be_nil
     end
   end
@@ -167,7 +167,7 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
       it 'responds with a successful response' do
         spree_post :clone, product_id: product.id, format: :json
 
-        expect(response.status).to eq(201)
+        expect(response).to have_http_status(:created)
       end
 
       it 'clones the product' do
@@ -179,7 +179,7 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
       it 'clones a product with image' do
         spree_post :clone, product_id: product_with_image.id, format: :json
 
-        expect(response.status).to eq(201)
+        expect(response).to have_http_status(:created)
         expect(json_response['name']).to eq("COPY OF #{product_with_image.name}")
       end
 
@@ -207,7 +207,7 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
       it 'responds with a successful response' do
         spree_post :clone, product_id: product.id, format: :json
 
-        expect(response.status).to eq(201)
+        expect(response).to have_http_status(:created)
       end
 
       it 'clones the product' do
@@ -219,7 +219,7 @@ RSpec.describe Api::V0::ProductsController, type: :controller do
       it 'clones a product with image' do
         spree_post :clone, product_id: product_with_image.id, format: :json
 
-        expect(response.status).to eq(201)
+        expect(response).to have_http_status(:created)
         expect(json_response['name']).to eq("COPY OF #{product_with_image.name}")
       end
     end

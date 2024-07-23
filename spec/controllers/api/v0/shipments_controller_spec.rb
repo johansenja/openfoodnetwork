@@ -130,7 +130,7 @@ RSpec.describe Api::V0::ShipmentsController, type: :controller do
       api_put :ready, order_id: shipment.order.to_param, id: shipment.to_param
 
       expect(json_response["error"]).to eq("Cannot ready shipment.")
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
     describe "#add and #remove" do
@@ -154,7 +154,7 @@ RSpec.describe Api::V0::ShipmentsController, type: :controller do
         it 'adds a variant to a shipment' do
           expect {
             api_put :add, params.merge(variant_id: new_variant.to_param)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           }.to change { inventory_units_for(new_variant).size }.by(2)
         end
 
@@ -167,7 +167,7 @@ RSpec.describe Api::V0::ShipmentsController, type: :controller do
         it 'removes a variant from a shipment' do
           expect {
             api_put :remove, params.merge(variant_id: existing_variant.to_param)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           }.to change { inventory_units_for(existing_variant).size }.by(-2)
         end
 
@@ -193,14 +193,14 @@ RSpec.describe Api::V0::ShipmentsController, type: :controller do
         it "doesn't adjust stock when adding a variant" do
           expect {
             api_put :add, params.merge(variant_id: existing_variant.to_param)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
           }.not_to change { existing_variant.reload.on_hand }
         end
 
         it "doesn't adjust stock when removing a variant" do
           expect {
             api_put :remove, params.merge(variant_id: existing_variant.to_param)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
           }.not_to change { existing_variant.reload.on_hand }
         end
       end
@@ -287,7 +287,7 @@ RSpec.describe Api::V0::ShipmentsController, type: :controller do
             expect(order.payment_state).to eq "paid" # order is fully paid for
 
             api_put :update, params
-            expect(response.status).to eq 200
+            expect(response).to have_http_status :ok
 
             order.reload
 
@@ -300,7 +300,7 @@ RSpec.describe Api::V0::ShipmentsController, type: :controller do
           it "updates closed adjustments" do
             expect {
               api_put :update, params
-              expect(response.status).to eq 200
+              expect(response).to have_http_status :ok
             }.to change { order.reload.shipment.fee_adjustment.amount }
           end
         end
@@ -423,7 +423,7 @@ RSpec.describe Api::V0::ShipmentsController, type: :controller do
     end
 
     def expect_valid_response
-      expect(response.status).to eq 200
+      expect(response).to have_http_status :ok
       attributes.all?{ |attr| json_response.key? attr.to_s }
     end
 
@@ -433,7 +433,7 @@ RSpec.describe Api::V0::ShipmentsController, type: :controller do
     end
 
     def expect_error_response
-      expect(response.status).to eq 422
+      expect(response).to have_http_status :unprocessable_entity
       expect(json_response["exception"]).to eq error_message
     end
   end

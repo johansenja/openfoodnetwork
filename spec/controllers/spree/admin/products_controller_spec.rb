@@ -52,7 +52,7 @@ RSpec.describe Spree::Admin::ProductsController, type: :controller do
                      }
                    ]
 
-        expect(response).to have_http_status(302)
+        expect(response).to have_http_status(:found)
       end
 
       it 'does not redirect to bulk_products' do
@@ -168,7 +168,7 @@ RSpec.describe Spree::Admin::ProductsController, type: :controller do
 
         spree_put :create, product: product_attrs_with_image
 
-        expect(response.status).to eq 200
+        expect(response).to have_http_status :ok
       end
     end
   end

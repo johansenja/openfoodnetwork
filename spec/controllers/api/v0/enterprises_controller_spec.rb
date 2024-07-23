@@ -31,7 +31,7 @@ RSpec.describe Api::V0::EnterprisesController, type: :controller do
 
       it "creates as sells=any when it is not a producer" do
         api_post :create, { enterprise: new_enterprise_params }
-        expect(response.status).to eq 201
+        expect(response).to have_http_status :created
 
         enterprise = Enterprise.last
         expect(enterprise.sells).to eq('any')
@@ -39,7 +39,7 @@ RSpec.describe Api::V0::EnterprisesController, type: :controller do
 
       it "creates a visible=hidden enterprise" do
         api_post :create, { enterprise: new_enterprise_params }
-        expect(response.status).to eq 201
+        expect(response).to have_http_status :created
 
         enterprise = Enterprise.last
         expect(enterprise.visible).to eq("only_through_links")
@@ -52,7 +52,7 @@ RSpec.describe Api::V0::EnterprisesController, type: :controller do
           enterprise: new_enterprise_params.
             merge({ user_ids: [enterprise_owner.id, manager1.id, manager2.id] })
         }
-        expect(response.status).to eq 201
+        expect(response).to have_http_status :created
 
         enterprise = Enterprise.last
         expect(enterprise.user_ids).to match_array([enterprise_owner.id, manager1.id, manager2.id])
@@ -91,14 +91,14 @@ RSpec.describe Api::V0::EnterprisesController, type: :controller do
 
       it "I can update enterprise logo image" do
         api_post :update_image, logo:, id: enterprise.id
-        expect(response.status).to eq 200
+        expect(response).to have_http_status :ok
         expect(response.content_type).to eq "text/html"
         expect(response.body).to match /logo\.png$/
       end
 
       it "I can update enterprise promo image" do
         api_post :update_image, promo: logo, id: enterprise.id
-        expect(response.status).to eq 200
+        expect(response).to have_http_status :ok
         expect(response.content_type).to eq "text/html"
         expect(response.body).to match /logo\.png$/
       end
