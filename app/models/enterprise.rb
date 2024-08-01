@@ -144,18 +144,28 @@ class Enterprise < ApplicationRecord
   scope :not_hidden, -> { where.not(visible: "hidden") }
   scope :activated, -> { where("sells != 'unspecified'") }
   scope :ready_for_checkout, lambda {
-    joins(:shipping_methods).
-      joins(:payment_methods).
-      merge(Spree::PaymentMethod.available).
-      merge(Spree::ShippingMethod.frontend).
-      select('DISTINCT enterprises.*')
+    where(
+      Spree::PaymentMethod
+        .available
+        .joins(:distributor_payment_methods)
+        .where("distributors_payment_methods.distributor_id = enterprises.id")
+        .arel
+        .exists
+    )
+      .where(
+        Spree::ShippingMethod
+          .frontend
+          .joins(:distributor_shipping_methods)
+          .where("distributors_shipping_methods.distributor_id = enterprises.id")
+          .arel
+          .exists
+      )
   }
   scope :not_ready_for_checkout, lambda {
     # When ready_for_checkout is empty, return all rows when there are no enterprises ready for
     # checkout.
     ready_enterprises = Enterprise.default_scoped.ready_for_checkout.
-      except(:select).
-      select('DISTINCT enterprises.id')
+      select("enterprises.id")
 
     if ready_enterprises.any?
       where.not(enterprises: { id: ready_enterprises })
