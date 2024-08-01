@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_18_150852) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_31_145622) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
   enable_extension "plpgsql"
@@ -234,6 +234,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_18_150852) do
     t.index ["owner_id"], name: "index_enterprises_on_owner_id"
     t.index ["permalink"], name: "index_enterprises_on_permalink", unique: true
     t.index ["sells"], name: "index_enterprises_on_sells"
+    t.index ["visible"], name: "index_enterprises_on_visible"
   end
 
   create_table "exchange_fees", id: :serial, force: :cascade do |t|
@@ -613,6 +614,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_18_150852) do
     t.datetime "updated_at", precision: nil, null: false
     t.datetime "deleted_at", precision: nil
     t.string "display_on", limit: 255
+    t.index ["active"], name: "index_spree_payment_methods_on_active"
+    t.index ["display_on"], name: "index_spree_payment_methods_on_display_on"
+    t.index ["environment"], name: "index_spree_payment_methods_on_environment"
   end
 
   create_table "spree_payments", id: :serial, force: :cascade do |t|
@@ -778,6 +782,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_18_150852) do
     t.text "description"
     t.string "tracking_url", limit: 255
     t.integer "tax_category_id"
+    t.index ["display_on"], name: "index_spree_shipping_methods_on_display_on"
     t.index ["tax_category_id"], name: "index_spree_shipping_methods_on_tax_category_id"
   end
 
